@@ -1,0 +1,8 @@
+google-api-python-client
+google-genai
+python-dotenv
+requests
+pandas
+pydantic
+streamlit
+rich

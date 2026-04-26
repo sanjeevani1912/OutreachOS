@@ -1,0 +1,27 @@
+# Environment variables
+.env
+
+# Python compilation files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# Local data and runs (keep the data folder structure but ignore contents)
+data/runs/
+data/*.json
+data/*.csv
+!data/.gitkeep
+
+# OS generated files
+.DS_Store
+Thumbs.db

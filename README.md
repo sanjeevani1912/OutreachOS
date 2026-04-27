@@ -2,6 +2,9 @@
 
 OutreachOS is an automated creator intelligence and outreach platform designed for modern brand marketing. It streamlines the entire influencer marketing workflow, from discovering niche micro-influencers to generating highly personalized outreach campaigns.
 
+## Architecture Diagram
+![Preview](OutreachOS_Architecture.png)
+
 ## Overview
 
 Finding the right creators and writing personalized pitches is traditionally a manual, time-consuming process. OutreachOS solves this by combining real-time platform data with AI-driven content analysis to identify the best brand partnerships and automate the initial outreach process.

@@ -12,7 +12,7 @@ class YouTubeDiscovery:
             except Exception as e:
                 print(f"[!] Failed to initialize YouTube client: {e}")
 
-    def search_influencers(self, keyword, max_results=50):
+    def search_influencers(self, keyword, max_results=50, min_followers=1000, max_followers=100000):
         if not self.youtube:
             print("[!] YouTube API key missing or invalid. Skipping live discovery.")
             return []
@@ -47,7 +47,7 @@ class YouTubeDiscovery:
                 subs = int(stats.get('subscriberCount', 0))
                 print(f"    - {name}: {subs} subs")
                 
-                if MIN_FOLLOWERS <= subs <= MAX_FOLLOWERS:
+                if min_followers <= subs <= max_followers:
                     description = item['snippet']['description']
                     email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', description)
                     contact_email = email_match.group(0) if email_match else "Not listed"

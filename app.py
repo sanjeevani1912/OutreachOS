@@ -105,7 +105,7 @@ def sidebar():
         st.markdown("<br>",unsafe_allow_html=True)
         run=st.button("Run Discovery",type="primary",use_container_width=True,key="run_btn")
         clr=st.button("Clear Results",use_container_width=True,key="clear_btn")
-        return run,clr,bn,ind,kw,tone,max_creators,brief
+        return run,clr,bn,ind,kw,tone,max_creators,brief,fr
 
 def hero():
     st.markdown("<br>",unsafe_allow_html=True)
@@ -329,7 +329,7 @@ def tab_strategy(data,brand_name,industry):
 def main():
     st.markdown(CSS,unsafe_allow_html=True)
     if "results" not in st.session_state: st.session_state.results=None
-    run,clr,bn,ind,kw,tone,max_creators,brief=sidebar()
+    run,clr,bn,ind,kw,tone,max_creators,brief,fr=sidebar()
     
     if clr: st.session_state.results=None
     
@@ -341,7 +341,7 @@ def main():
             with ph.container(): stepper(0)
             yt = YouTubeDiscovery()
             ig = InstagramDiscovery()
-            y_inf = yt.search_influencers(kw, 30)
+            y_inf = yt.search_influencers(kw, max_results=30, min_followers=fr[0], max_followers=fr[1])
             i_inf = ig.search_influencers(kw)
             infs = (y_inf + i_inf)[:max_creators]
             

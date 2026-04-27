@@ -43,7 +43,7 @@ class OutreachGenerator:
         THEMES: {', '.join(enriched_influencer.get('content_themes', []))}
         RECENT SIGNALS: {', '.join(enriched_influencer.get('recent_signals', ['their content format']))}
         
-        Return ONLY a JSON object with THREE distinct tones. Keys MUST be exactly: 'professional', 'friendly', 'casual'. 
+        Return ONLY a JSON object with TWO distinct tones. Keys MUST be exactly: 'professional', 'friendly'.
         Each key must contain a nested object with keys: 'email' (60-90 words) and 'dm' (15-30 words).
         You MUST show that you actually watched their content. Start the email and DM by specifically referencing one of their 'RECENT SIGNALS' or 'THEMES'. 
         Example: "Loved your recent breakdown on [Specific Signal] — that aligns perfectly with what we're building..."

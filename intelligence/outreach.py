@@ -30,7 +30,7 @@ class OutreachGenerator:
             enriched_influencer['outreach'] = {"email": "Mock", "dm": "Mock"}
             return enriched_influencer
 
-        models_to_try = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"]
+        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
         prompt = f"""
         Generate personalized outreach messages from our brand to this creator.
         BRAND NAME: {self.brand_name}
@@ -45,8 +45,11 @@ class OutreachGenerator:
         
         Return ONLY a JSON object with TWO distinct tones. Keys MUST be exactly: 'professional', 'friendly'.
         Each key must contain a nested object with keys: 'email' (60-90 words) and 'dm' (15-30 words).
-        You MUST show that you actually watched their content. Start the email and DM by specifically referencing one of their 'RECENT SIGNALS' or 'THEMES'. 
-        Example: "Loved your recent breakdown on [Specific Signal] — that aligns perfectly with what we're building..."
+        
+        CRITICAL FORMATTING RULES:
+        1. Every email MUST start with a proper salutation (e.g., "Hi [Name]," or "Dear [Name],").
+        2. Every email MUST end with a professional closing (e.g., "Best regards," or "Cheers,").
+        3. You MUST show that you actually watched their content. Reference one of their 'RECENT SIGNALS' or 'THEMES' in the first paragraph. 
         
         CRITICAL RULE for TONE:
         Ensure the generated messages strictly follow the requested BRAND TONE ({self.tone}). Adjust vocabulary, formality, and structure accordingly.
@@ -76,7 +79,6 @@ class OutreachGenerator:
 
         enriched_influencer['outreach'] = {
             "professional": {"email": base_email, "dm": base_dm},
-            "friendly": {"email": base_email.replace("Hi", "Hey").replace("Best,", "Cheers,"), "dm": base_dm},
-            "casual": {"email": base_email.replace("Hi", "Yo").replace("Best,", "Peace,"), "dm": base_dm.replace("Hey", "Yo")}
+            "friendly": {"email": base_email.replace("Hi", "Hey").replace("Best,", "Cheers,"), "dm": base_dm}
         }
         return enriched_influencer

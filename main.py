@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 from discovery.youtube import YouTubeDiscovery
 from discovery.instagram import InstagramDiscovery
@@ -52,10 +53,26 @@ def run_pipeline(keyword, target_count=5, brand_name=None, industry=None):
 
     # ─── STEP 2: Content Analysis ─────────────────────────────────────────
     print_step(1, TOTAL_STEPS, "Content Analysis", f"Running Gemini AI on {len(all_influencers)} creator(s)...")
-    analyzer = ContentAnalyzer(brand_name=brand, industry=ind, brand_brief="We are looking for creators to promote our new products.")
+    
+    # Only use config brief if the brand name matches the config name
+    if len(sys.argv) > 5:
+        brief = sys.argv[5]
+    elif brand == BRAND_CONTEXT.get('name'):
+        brief = BRAND_CONTEXT.get('description', "No brief provided.")
+    else:
+        brief = f"a professional brand operating in the {ind} industry."
+        
+    analyzer = ContentAnalyzer(brand_name=brand, industry=ind, brand_brief=brief)
     for creator in all_influencers:
-        analyzer.analyze(creator)
-        print_analysis_result(creator['name'], creator)
+        try:
+            analyzer.analyze(creator)
+            print_analysis_result(creator['name'], creator)
+        except Exception as e:
+            if any(code in str(e) for code in ["404", "429", "503", "500"]):
+                time.sleep(2) # Backoff before trying next model
+                continue
+            print(f"[!] Gemini Analysis Error: {e}")
+            break
 
     # ─── STEP 3: Brand-Fit Scoring ────────────────────────────────────────
     print_step(2, TOTAL_STEPS, "Brand-Fit Scoring", "Applying algorithmic scoring rules...")
@@ -64,8 +81,9 @@ def run_pipeline(keyword, target_count=5, brand_name=None, industry=None):
         scorer.calculate_score(creator)
 
     # ─── STEP 4: Outreach Generation ─────────────────────────────────────
-    print_step(3, TOTAL_STEPS, "Outreach Generation", f"Generating Professional, Friendly, & Casual templates...")
-    outreach_gen = OutreachGenerator(brand_name=brand)
+    print_step(3, TOTAL_STEPS, "Outreach Generation", f"Generating Professional & Friendly templates...")
+    time.sleep(2)
+    outreach_gen = OutreachGenerator(brand_name=brand, industry=ind, brand_brief=brief)
     for creator in all_influencers:
         outreach_gen.generate(creator)
         if creator.get('outreach'):

@@ -28,7 +28,7 @@ class ContentAnalyzer:
         if not self.client:
             return self._mock_analysis(influencer_data)
 
-        models_to_try = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-2.5-flash", "gemini-flash-latest"]
+        models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]
         prompt = f"""
         Analyze this micro-influencer for our brand:
         BRAND NAME: {self.brand_name}
@@ -63,7 +63,7 @@ class ContentAnalyzer:
                 if any(code in str(e) for code in ["404", "429", "503", "500"]):
                     time.sleep(2) # Backoff before trying next model
                     continue
-                print(f"[!] Analysis error with {model_name}: {e}")
+                print(f"[!] Detailed Gemini Error: {e}")
                 break
 
         return self._mock_analysis(influencer_data)

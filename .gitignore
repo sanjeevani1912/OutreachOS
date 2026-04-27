@@ -6,6 +6,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+data/
+scratch/
 
 # Virtual environments
 venv/

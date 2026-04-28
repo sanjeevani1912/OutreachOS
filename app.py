@@ -5,6 +5,7 @@ from discovery.instagram import InstagramDiscovery
 from intelligence.analyzer import ContentAnalyzer
 from intelligence.scorer import BrandFitScorer
 from intelligence.outreach import OutreachGenerator
+from intelligence.enricher import DataEnricher
 from utils.logger import (
     print_banner, print_discovery_results, print_analysis_result,
     print_outreach_preview, print_summary_table, print_save_confirmation, console
@@ -112,8 +113,8 @@ def hero():
     st.markdown("<div class='hero-t'>Discover. Analyze. Outreach.</div>",unsafe_allow_html=True)
     st.markdown("<div class='hero-s'>Enter your brand details and keywords to discover micro-influencers and generate personalized outreach in seconds.</div>",unsafe_allow_html=True)
     c1,c2,c3,c4=st.columns(4)
-    for col,(t,d) in zip([c1,c2,c3,c4],[("Real-Time Discovery","Live search across YouTube and Instagram"),("AI Content Analysis","Deep content signal extraction"),("Brand-Fit Scoring","Dynamic relevance matching"),("Personalized Outreach","Context-aware message generation")]):
-        with col: st.markdown(f"<div class='card card-accent'><div style='font-size:.9rem;font-weight:600;margin-bottom:6px;color:#E8EDF5'>{t}</div><div style='font-size:.8rem;color:#8FA3C0'>{d}</div></div>",unsafe_allow_html=True)
+    for col,(t,d) in zip([c1,c2,c3,c4],[("Real-Time Discovery","Live search across YouTube"),("AI Content Analysis","Deep content signal extraction"),("Brand-Fit Scoring","Dynamic relevance matching"),("Personalized Outreach","Context-aware message generation")]):
+        with col: st.markdown(f"<div class='card card-accent'><div style='font-size:.9rem;font-weight:600;margin-bottom:6px;color:#1a3a4a'>{t}</div><div style='font-size:.8rem;color:#8FA3C0'>{d}</div></div>",unsafe_allow_html=True)
 
 def metrics(data):
     ae=sum(d["engagement_rate"] for d in data)/len(data)
@@ -149,10 +150,14 @@ def tab_profiles(data, bn):
 <span class='{bdg}'>{d["platform"]}</span>
 </div>
 <div style='flex: 1;'>
-<div style='display:flex;align-items:center;margin-bottom:8px'>
-<span style='font-size:1.2rem;font-weight:700;color:#1a3a4a;margin-right:12px;'>{d["creator_handle"]}</span>
-{th}
+<div style='display:flex; flex-direction:column; margin-bottom:8px'>
+    <div style='display:flex; align-items:center; gap:8px;'>
+        <span style='font-size:1.3rem; font-weight:700; color:#1a3a4a;'>{d["name"]}</span>
+        <a href='{d["profile_link"]}' target='_blank' style='text-decoration:none; color:#45b3e0; font-size:1rem;'>🔗</a>
+    </div>
+    <span style='font-size:0.9rem; color:#5a8fa0; font-family:monospace;'>{d["creator_handle"]}</span>
 </div>
+<div style='margin-bottom:12px;'>{th}</div>
 <div style='display:flex;gap:12px;margin-bottom:12px'>
 <div style='background:#e8f5fb;border-radius:8px;padding:8px 12px;flex:1;text-align:center'>
 <div style='color:#45b3e0;font-weight:700'>{d["engagement_rate"]}%</div>
@@ -185,7 +190,7 @@ def tab_profiles(data, bn):
 </div>
 """,unsafe_allow_html=True)
 
-        t_prof, t_friend, t_cas = st.tabs(["💼 Professional", "👋 Friendly", "☕ Casual"])
+        t_prof, t_friend, t_cas = st.tabs(["Professional", "Friendly", "Casual"])
         tones = ["professional", "friendly", "casual"]
         tabs = [t_prof, t_friend, t_cas]
         outreach = d.get("outreach", {})
@@ -354,7 +359,7 @@ def main():
                 
                 with ph.container(): stepper(2)
                 print_banner(kw, bn or "[Brand]", 5)
-                analyzer = ContentAnalyzer(brand_name=bn)
+                analyzer = ContentAnalyzer(brand_name=bn, industry=ind, brand_brief=brief)
                 for d in infs:
                     analyzer.analyze(d)
                     print_analysis_result(d['name'], d)
@@ -371,45 +376,7 @@ def main():
                         print_outreach_preview(d['name'], d['outreach'])
                 
                 for d in infs:
-                    d['creator_handle'] = d.get('handle', d.get('name'))
-                    d['followers'] = d.get('follower_count', 0)
-                    d['fit_explanation'] = d.get('reasoning', "Good fit overall.")
-                    
-                    # Calculate engagement rate: avg views / subscribers * 100
-                    v = int(d.get('metadata',{}).get('view_count') or 0)
-                    vc = int(d.get('metadata',{}).get('video_count') or 1)
-                    subs = d.get('follower_count', 1)
-                    avg_v = v // vc if vc else 0
-                    d['avg_views'] = avg_v
-                    d['engagement_rate'] = round((avg_v / subs * 100), 1) if subs else 3.5
-                    
-                    # Estimate posting frequency from total video count
-                    if vc >= 500: d['posting_frequency'] = "Daily"
-                    elif vc >= 200: d['posting_frequency'] = "3-4x/week"
-                    elif vc >= 100: d['posting_frequency'] = "2x/week"
-                    elif vc >= 50: d['posting_frequency'] = "Weekly"
-                    else: d['posting_frequency'] = "Occasional"
-                    if 'engagement_quality' not in d: d['engagement_quality'] = "Genuine"
-                    if 'engagement_reason' not in d: d['engagement_reason'] = "Consistent organic growth."
-                    if 'growth_trend' not in d: d['growth_trend'] = "Stable"
-                    if 'brand_fit_score' not in d: d['brand_fit_score'] = d.get('relevance_score', 50)
-                    if 'niche' not in d: d['niche'] = "General"
-                    if 'segment_name' not in d: d['segment_name'] = "Segment A: General Audience"
-                    if 'content_themes' not in d: d['content_themes'] = ["Video Content"]
-                    if 'recent_signals' not in d: d['recent_signals'] = ["Recent upload"]
-                    if 'collaboration_recommended' not in d: d['collaboration_recommended'] = d.get('recommended_collab_type', "Barter")
-                    if 'outreach' in d:
-                        d['email_body'] = d['outreach'].get('email', '')
-                        d['dm_message'] = d['outreach'].get('dm', '')
-                    else:
-                        d['email_body'] = ''
-                        d['dm_message'] = ''
-                    d['email_subject'] = f"Partnership Opportunity — {bn} x {d.get('handle', '')}"
-                    
-                    if 'outreach_signals_used' not in d: d['outreach_signals_used'] = "Recent channel activity"
-                    if 'contact_email' not in d: d['contact_email'] = "Not listed"
-                    if 'competitor_flag' not in d: d['competitor_flag'] = False
-                    if 'competitor_detail' not in d: d['competitor_detail'] = None
+                    DataEnricher.enrich(d, brand_name=bn or "[Brand]")
 
                 Exporter.save_run(infs)
                 st.session_state.results = infs

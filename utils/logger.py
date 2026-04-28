@@ -101,6 +101,7 @@ def print_summary_table(results):
     table.add_column("Creator", style="bold white", min_width=22)
     table.add_column("Platform", justify="center")
     table.add_column("Followers", justify="right", style="cyan")
+    table.add_column("Eng. Rate", justify="right", style="magenta")
     table.add_column("Niche", style="white")
     table.add_column("Fit Score", justify="center")
     table.add_column("Collab Type", style="dim")
@@ -108,6 +109,7 @@ def print_summary_table(results):
     for i, r in enumerate(results, 1):
         score = r.get('brand_fit_score', r.get('adjusted_brand_fit_score', '—'))
         subs  = r.get('follower_count', 0)
+        eng   = r.get('engagement_rate', 0)
         subs_fmt = f"{subs/1000:.1f}K" if subs < 1_000_000 else f"{subs/1_000_000:.1f}M"
         score_str = f"[green]{score}%[/green]" if isinstance(score, int) and score >= 70 else \
                     (f"[yellow]{score}%[/yellow]" if isinstance(score, int) and score >= 50 else f"[red]{score}%[/red]")
@@ -116,6 +118,7 @@ def print_summary_table(results):
             r.get('name', ''),
             r.get('platform', ''),
             subs_fmt,
+            f"{eng}%",
             r.get('niche', '—'),
             score_str,
             r.get('recommended_collab_type', r.get('collaboration_recommended', '—'))

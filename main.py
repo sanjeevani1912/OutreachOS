@@ -7,6 +7,7 @@ from discovery.instagram import InstagramDiscovery
 from intelligence.analyzer import ContentAnalyzer
 from intelligence.scorer import BrandFitScorer
 from intelligence.outreach import OutreachGenerator
+from intelligence.enricher import DataEnricher
 from utils.exporter import Exporter
 from utils.logger import (
     console, print_banner, print_step,
@@ -15,7 +16,7 @@ from utils.logger import (
 )
 from config import BRAND_CONTEXT
 
-TOTAL_STEPS = 5
+TOTAL_STEPS = 6
 
 def check_setup():
     from dotenv import load_dotenv
@@ -89,8 +90,13 @@ def run_pipeline(keyword, target_count=5, brand_name=None, industry=None):
         if creator.get('outreach'):
             print_outreach_preview(creator['name'], creator['outreach'])
 
-    # ─── STEP 5: Export ───────────────────────────────────────────────────
-    print_step(4, TOTAL_STEPS, "Persistence", "Exporting pipeline results...")
+    # ─── STEP 5: Data Enrichment ─────────────────────────────────────────
+    print_step(4, TOTAL_STEPS, "Enrichment", "Calculating metrics and formatting results...")
+    for creator in all_influencers:
+        DataEnricher.enrich(creator, brand_name=brand)
+
+    # ─── STEP 6: Export ───────────────────────────────────────────────────
+    print_step(5, TOTAL_STEPS, "Persistence", "Exporting pipeline results...")
     saved_folder = Exporter.save_run(all_influencers)
     console.print(f"[green]✓ Successfully exported pipeline run to {saved_folder}[/green]")
 
